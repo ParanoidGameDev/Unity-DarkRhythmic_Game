@@ -330,10 +330,6 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3763364894044580074, guid: 7a245ccd3fe3d3a42a19cb0bcea35ace, type: 3}
-      propertyPath: m_TargetGraphic
-      value: 
-      objectReference: {fileID: 2074730010}
-    - target: {fileID: 3763364894044580074, guid: 7a245ccd3fe3d3a42a19cb0bcea35ace, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
       value: 1
       objectReference: {fileID: 0}
@@ -464,17 +460,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 4466664996331447840, guid: 7a245ccd3fe3d3a42a19cb0bcea35ace, type: 3}
   m_PrefabInstance: {fileID: 2074730008}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2074730010 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 502653354712964745, guid: 7a245ccd3fe3d3a42a19cb0bcea35ace, type: 3}
-  m_PrefabInstance: {fileID: 2074730008}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
