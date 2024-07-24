@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System;
 
 public class PlayerDeck : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
     // ! Actions
@@ -10,19 +11,37 @@ public class PlayerDeck : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     // ! Display
     public float radius;
     public float angleOffset;
+    public float hideSpeed;
+    public float orderSpeed;
 
     // ! Particle System
     private ParticleSystem currentParticleSystem;
 
     private void Update() {
-        if(this.cardSelected && !this.cardArea) {
-            DetectTile();
+        this.HighlightTile();
+    }
 
-            if (Input.GetMouseButtonUp(0)) {
+    private void HighlightTile() {
+        Vector2 currentPosition = this.transform.position;
+        Vector2 newPosition = this.transform.position;
+        if(this.cardSelected) {
+            if(this.cardArea || Input.GetMouseButtonUp(0)) {
+                currentPosition.y = 0.0f;
+            } else {
+                currentPosition.y = -144.0f;
+                this.DetectTile();
+            }
+            
+            if (Input.GetMouseButtonUp(0) && !this.cardArea) {
                 // Detect the tile under the cursor and activate its particle system
                 Destroy(this.cardSelected.gameObject);
             }
-        } else if (!this.cardSelected && this.currentParticleSystem) this.currentParticleSystem.Stop();
+        } else {
+            currentPosition.y = 0.0f;
+            if (this.currentParticleSystem) this.currentParticleSystem.Stop();
+        }
+        Vector2 smoothedPosition = Vector2.Lerp(currentPosition, newPosition, this.hideSpeed);
+        this.transform.position = smoothedPosition;
     }
 
     private void LateUpdate() {
@@ -57,10 +76,10 @@ public class PlayerDeck : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
                 float angle = startAngle + ((i + 0.5f) * angleStep);
                 Vector2 position = this.radius * multiplier + new Vector2(Mathf.Sin(Mathf.Deg2Rad * angle) * this.radius, Mathf.Cos(Mathf.Deg2Rad * angle) * this.radius);
 
-                child.localPosition = Vector3.Lerp(child.localPosition, position + (Vector2.up * 0.1f), 0.1f);
+                child.localPosition = Vector3.Lerp(child.localPosition, position + (Vector2.up * 0.1f), this.orderSpeed);
 
                 // Rotating cards
-                child.localRotation = Quaternion.Euler(0.0f, 0.0f, Mathf.Lerp(child.localRotation.z, -angle, 1.0f));
+                child.localRotation = Quaternion.Euler(0.0f, 0.0f, Mathf.Lerp(child.localRotation.z, -angle, this.orderSpeed * 10));
             }
         }
     }
