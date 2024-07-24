@@ -1,114 +1,120 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 
-public class PlayerMotion : MonoBehaviour {
+public class PlayerMotion : MonoBehaviour
+{
     // ! Attributes
-    public float moveSpeed = 5f;
+    public float moveSpeed = 0.25f;
+    public float moveCD = 1.0f;
+    public float moveReset = 0.05f;
+    //public float movePenalty = 0.05f;
 
     // ! Movement
-    private  Tilemap tilemap;
-    private Vector3Int currentCell;
-    private Vector3Int targetCell;
+    public Vector2[] moveDirections;
     private bool isMoving = false;
-    private bool alternateRow = false;
 
     // ! Inputs
     [SerializeField] private _InputManager input;
 
-    private void Awake() {
-        InitializePlayer();
-    }
-
-    private void InitializePlayer() {
-        InitializeWorld();
-        InitializePosition();
-    }
-
-    private void InitializeWorld()
-    {
-        tilemap = GameObject.Find("tilemap_Obj").GetComponent<Tilemap>();
-    }
-
     private void Update() {
-        CheckMovement();
+        // Common updates
+        this.CheckMovement();
+
+        // CDs
+        this.UpdateCDs();
+    }
+
+    private void UpdateCDs() {
+        // Move
+        if (this.moveCD > 0) this.moveCD -= Time.deltaTime;
+        else this.moveCD = 0;
     }
 
     private void CheckMovement() {
-        if (!isMoving) {
-
-            Vector3Int direction = Vector3Int.zero;
-
-            if (input.W_press) direction = Vector3Int.right; // Arriba
-            else {
-                if (input.S_press) direction = Vector3Int.left; // Abajo
-                else if (alternateRow) {
-                    direction = GetSameRowDirection();
-                } else {
-                    direction = GetDiffRowDirection();
+        // Check if can move
+        if (!this.isMoving && this.moveCD == 0) {
+            // Checking input for movement
+            for (int i = 0; i < input.moveKeys.Count; i++) {
+                // Move to correct directions
+                if (input.moveKeys[i].Enabled) {
+                    this.IsCellValid(this.moveDirections[i]);
+                    break;
                 }
             }
-            if (direction != Vector3Int.zero) {
-                Move(direction);
-            }
         }
     }
 
-    private void InitializePosition() {
-        currentCell = tilemap.WorldToCell(transform.position);
-        transform.position = tilemap.CellToWorld(currentCell) + tilemap.tileAnchor;
-    }
-    
-    private Vector3Int GetSameRowDirection() {
-        Vector3Int lateralDir = Vector3Int.zero;
+    private void IsCellValid(Vector2 checkPosition) {
+        // Setting local 3D position from 2D movement input
+        Vector3 cellPosition = this.transform.position;
+        cellPosition.x += checkPosition.x;
+        cellPosition.y += 2.0f;
+        cellPosition.z += checkPosition.y;
 
-        if (input.Q_press) lateralDir = new Vector3Int(1, -1, 0); // Arriba izquierda
-        else if (input.E_press) lateralDir = new Vector3Int(1, 1, 0); // Derecha Arriba
-        else if (input.A_press) lateralDir = new Vector3Int(0, -1, 0); // Izquierda
-        else if (input.D_press) lateralDir = new Vector3Int(0, 1, 0); // Derecha
+        // Tile object found
+        TileObject tile = this.TileAtPos(cellPosition);
 
-        return lateralDir;
-    }
+        Debug.Log(cellPosition);
+        Debug.Log(tile);
 
-    private Vector3Int GetDiffRowDirection() {
-        Vector3Int lateralDir = Vector3Int.zero;
-
-        if (input.Q_press) lateralDir = new Vector3Int(0, -1, 0); // Arriba izquierda
-        else if(input.E_press) lateralDir = new Vector3Int(0, 1, 0); // Derecha Arriba
-        else if(input.A_press) lateralDir = new Vector3Int(-1, -1, 0); // Izquierda
-        else if(input.D_press) lateralDir = new Vector3Int(-1, 1, 0); // Derecha
-
-        return lateralDir;
-    }
-
-    private void Move(Vector3Int direction) {
-        targetCell = currentCell + direction;
-
-        if (tilemap.GetTile(targetCell) != null && IsCellPassable(targetCell)) {
-            if (direction != Vector3Int.left && direction != Vector3Int.right) {
-                alternateRow = !alternateRow;
-            }
-            StartCoroutine(MoveToCell(targetCell));
+        // Move when cell is valid
+        if (tile.isPassable) {
+            cellPosition.y = tile.tileHeight;
+            this.StartCoroutine(this.MoveToCell(cellPosition));
+        } else {
+            Debug.LogWarning("Tile not available");
         }
     }
 
-    private IEnumerator MoveToCell(Vector3Int cell) {
-        isMoving = true;
-        Vector3 targetPos = tilemap.CellToWorld(cell) + tilemap.tileAnchor;
+    private TileObject TileAtPos(Vector3 cellPosition) {
+        // Raycast for any tile object with hitbox
+        Ray ray = new(cellPosition, Vector3.down);
+        if (Physics.Raycast(ray, out RaycastHit hit, 4.0f)) {
+            if(hit.collider.TryGetComponent<TileObject>(out TileObject tileFound)) {
+                return tileFound;
+            }
+        }
+        // No object found
+        Debug.LogWarning("No GameObject found or TileObject component is missing.");
+        return null;
+    }
+
+    private IEnumerator MoveToCell(Vector3 nextPosition) {
+        // Lock movement overwriting
+        this.isMoving = true;
+
+        // Setting transition values
         float elapsedTime = 0.0f;
+        Vector3 startPosition = this.transform.position;
 
-        while (elapsedTime < moveSpeed) {
-            transform.position = Vector3.Lerp(transform.position, targetPos, elapsedTime);
+        // Calculate vertical difference and set maximum height accordingly
+        float verticalDifference = nextPosition.y - startPosition.y;
+        float maxHeight = Mathf.Abs(verticalDifference) * 1.25f + 0.25f;
+
+        // Move animation
+        while (elapsedTime < this.moveSpeed) {
             elapsedTime += Time.deltaTime;
+
+            // Calculate fraction of journey completed
+            float fracJourney = elapsedTime / this.moveSpeed;
+
+            // Animate movement
+            Vector3 interpolatedPosition = Vector3.Lerp(startPosition, nextPosition, fracJourney);
+
+            // Calculate height for hopping effect
+            float height = maxHeight * (-4 * Mathf.Pow(fracJourney - 0.5f, 2) + 1);
+            interpolatedPosition.y = startPosition.y + height + verticalDifference * fracJourney;
+
+            // Apply interpolated position
+            this.transform.position = interpolatedPosition;
             yield return null;
         }
 
-        transform.position = targetPos;
-        currentCell = cell;
-        isMoving = false;
-    }
+        // Ensure final position is set
+        this.transform.position = nextPosition;
 
-    private bool IsCellPassable(Vector3Int cell) {
-        return true;
+        // Marking move availability
+        this.moveCD = 0.05f;
+        this.isMoving = false;
     }
 }
