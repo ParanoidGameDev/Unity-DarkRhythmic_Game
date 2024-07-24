@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6868329110560386194}
   - component: {fileID: 5101815033815427112}
   m_Layer: 0
-  m_Name: baseTile
+  m_Name: baseTile_Pfb
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

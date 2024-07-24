@@ -315,7 +315,7 @@ MonoBehaviour:
   cameraOffset: {x: 0, y: 4, z: -4.5}
   currentTilePosition: {x: 0, y: 0, z: 0}
   cameraTrackSmooth: 5
-  cameraTrackPlayerRotation: 1
+  cameraTrackPlayerRotation: 0
 --- !u!95 &8769360890424731298
 Animator:
   serializedVersion: 5
