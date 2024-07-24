@@ -1,14 +1,12 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class _InputManager : MonoBehaviour {
     // ! ### Gameplay ###
-    // ! - Keyboard -
-    public bool Q_press;
-    public bool W_press;
-    public bool E_press;
-    public bool A_press;
-    public bool S_press;
-    public bool D_press;
+    // ! - Keyboard - Individual -
+
+    // ! - Keyboard - Multiple -
+    [SerializeField] public List<KeyState> moveKeys;
 
     //public bool escape;
 
@@ -18,11 +16,21 @@ public class _InputManager : MonoBehaviour {
         else escape = false;
         */
 
-        Q_press = Input.GetKey(KeyCode.Q);
-        W_press = Input.GetKey(KeyCode.W);
-        E_press = Input.GetKey(KeyCode.E);
-        A_press = Input.GetKey(KeyCode.A);
-        S_press = Input.GetKey(KeyCode.S);
-        D_press = Input.GetKey(KeyCode.D);
+        // Movement keys
+        foreach (var moveKey in this.moveKeys) {
+            if(Input.GetKey(moveKey.Key)) moveKey.Enabled = true;
+            else moveKey.Enabled = false;
+        }
+    }
+
+    [System.Serializable]
+    public class KeyState {
+        public KeyCode Key;
+        public bool Enabled;
+
+        public KeyState(KeyCode key, bool enabled) {
+            Key = key;
+            Enabled = enabled;
+        }
     }
 }
