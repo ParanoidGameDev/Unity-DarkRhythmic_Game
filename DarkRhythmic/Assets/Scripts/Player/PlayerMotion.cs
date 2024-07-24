@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -16,12 +17,32 @@ public class PlayerMotion : MonoBehaviour
     // ! Inputs
     [SerializeField] private _InputManager input;
 
+    // ! Camera
+    public float cameraSmooth = 0.125f;
+    public Vector3 cameraOffset;
+    public Vector3 currentTilePosition;
+
     private void Update() {
         // Common updates
         this.CheckMovement();
+    }
+
+    private void LateUpdate() {
+        // Camera
+        UpdateCameraPosition();
 
         // CDs
         this.UpdateCDs();
+    }
+
+    private void UpdateCameraPosition() {
+        // New camera position based on Player
+        Vector3 newPosition = this.transform.position + this.cameraOffset;
+        newPosition.y = Camera.main.transform.position.y;
+
+        // Movement interpolation
+        Vector3 smoothedPosition = Vector3.Lerp(Camera.main.transform.position, newPosition, this.cameraSmooth);
+        Camera.main.transform.position = smoothedPosition;
     }
 
     private void UpdateCDs() {
@@ -53,9 +74,6 @@ public class PlayerMotion : MonoBehaviour
 
         // Tile object found
         TileObject tile = this.TileAtPos(cellPosition);
-
-        Debug.Log(cellPosition);
-        Debug.Log(tile);
 
         // Move when cell is valid
         if (tile.isPassable) {
@@ -112,6 +130,7 @@ public class PlayerMotion : MonoBehaviour
 
         // Ensure final position is set
         this.transform.position = nextPosition;
+        this.currentTilePosition = nextPosition;
 
         // Marking move availability
         this.moveCD = 0.05f;

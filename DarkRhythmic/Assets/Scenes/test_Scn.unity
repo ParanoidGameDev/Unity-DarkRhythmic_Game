@@ -1480,7 +1480,7 @@ GameObject:
   - component: {fileID: 509507986}
   m_Layer: 0
   m_Name: mainCamera_Obj
-  m_TagString: Untagged
+  m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5398,6 +5398,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6868329110560386194, guid: 18945cccb89552640b556a5863af603c,
+        type: 3}
+      propertyPath: tileHeight
+      value: 0.5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6738,56 +6743,6 @@ PrefabInstance:
       propertyPath: input
       value: 
       objectReference: {fileID: 1251581957}
-    - target: {fileID: 7396187448152496857, guid: 6b42f03f867f2f9459e50735fb463fa5,
-        type: 3}
-      propertyPath: moveDirections.Array.data[0].x
-      value: -0.75
-      objectReference: {fileID: 0}
-    - target: {fileID: 7396187448152496857, guid: 6b42f03f867f2f9459e50735fb463fa5,
-        type: 3}
-      propertyPath: moveDirections.Array.data[0].y
-      value: 0.4329883
-      objectReference: {fileID: 0}
-    - target: {fileID: 7396187448152496857, guid: 6b42f03f867f2f9459e50735fb463fa5,
-        type: 3}
-      propertyPath: moveDirections.Array.data[1].y
-      value: 0.8659766
-      objectReference: {fileID: 0}
-    - target: {fileID: 7396187448152496857, guid: 6b42f03f867f2f9459e50735fb463fa5,
-        type: 3}
-      propertyPath: moveDirections.Array.data[2].x
-      value: 0.75
-      objectReference: {fileID: 0}
-    - target: {fileID: 7396187448152496857, guid: 6b42f03f867f2f9459e50735fb463fa5,
-        type: 3}
-      propertyPath: moveDirections.Array.data[2].y
-      value: 0.4329883
-      objectReference: {fileID: 0}
-    - target: {fileID: 7396187448152496857, guid: 6b42f03f867f2f9459e50735fb463fa5,
-        type: 3}
-      propertyPath: moveDirections.Array.data[3].x
-      value: -0.75
-      objectReference: {fileID: 0}
-    - target: {fileID: 7396187448152496857, guid: 6b42f03f867f2f9459e50735fb463fa5,
-        type: 3}
-      propertyPath: moveDirections.Array.data[3].y
-      value: -0.4329883
-      objectReference: {fileID: 0}
-    - target: {fileID: 7396187448152496857, guid: 6b42f03f867f2f9459e50735fb463fa5,
-        type: 3}
-      propertyPath: moveDirections.Array.data[4].y
-      value: -0.8659766
-      objectReference: {fileID: 0}
-    - target: {fileID: 7396187448152496857, guid: 6b42f03f867f2f9459e50735fb463fa5,
-        type: 3}
-      propertyPath: moveDirections.Array.data[5].x
-      value: 0.75
-      objectReference: {fileID: 0}
-    - target: {fileID: 7396187448152496857, guid: 6b42f03f867f2f9459e50735fb463fa5,
-        type: 3}
-      propertyPath: moveDirections.Array.data[5].y
-      value: -0.4329883
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
