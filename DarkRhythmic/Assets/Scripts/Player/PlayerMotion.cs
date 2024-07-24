@@ -1,6 +1,4 @@
-using System;
 using System.Collections;
-using TMPro;
 using UnityEngine;
 
 public class PlayerMotion : MonoBehaviour
@@ -19,9 +17,16 @@ public class PlayerMotion : MonoBehaviour
     [SerializeField] private _InputManager input;
 
     // ! Camera
-    public float cameraSmooth = 0.125f;
+    public Transform camera;
+    public Vector3Int cameraDefaultRotation;
     public Vector3 cameraOffset;
     public Vector3 currentTilePosition;
+    public float cameraTrackSmooth = 0.125f;
+    public bool cameraTrackPlayerRotation;
+
+    private void Start() {
+        this.camera = Camera.main.transform;
+    }
 
     private void Update() {
         // Common updates
@@ -30,20 +35,43 @@ public class PlayerMotion : MonoBehaviour
 
     private void LateUpdate() {
         // Camera
-        UpdateCameraPosition();
+        this.UpdateCameraTracking();
 
         // CDs
         this.UpdateCDs();
     }
 
-    private void UpdateCameraPosition() {
-        // New camera position based on Player
-        Vector3 newPosition = this.transform.position + this.cameraOffset;
-        newPosition.y = Camera.main.transform.position.y;
+    private void UpdateCameraTracking() {
+        // Setting transition values
+        Quaternion smoothedRotation;
+        Vector3Int newCameraRotation = this.cameraDefaultRotation;
+        Vector3 newPosition = this.transform.position;
+        Vector3 smoothedPosition = this.transform.position;
+        float elapsedTime = 0.0f;
 
-        // Movement interpolation
-        Vector3 smoothedPosition = Vector3.Lerp(Camera.main.transform.position, newPosition, this.cameraSmooth);
-        Camera.main.transform.position = smoothedPosition;
+        if (this.cameraTrackPlayerRotation) {
+            // Offsetting position based on Player position
+            Vector3 rotatedOffset = Quaternion.Euler(0, this.transform.rotation.eulerAngles.y, 0) * this.cameraOffset;
+            newPosition += rotatedOffset;
+
+            // Setting camera rotation based on Player rotation
+            newCameraRotation.y = (int)this.transform.rotation.eulerAngles.y;
+        } else {
+            // Set default position
+            newPosition += this.cameraOffset;
+        }
+
+        // Rotate animation
+        while (elapsedTime < this.cameraTrackSmooth) {
+            elapsedTime += Time.deltaTime;
+
+            // Smooth interpolate to new values
+            smoothedPosition = Vector3.Slerp(this.camera.position, newPosition, this.cameraTrackSmooth);
+            smoothedRotation = Quaternion.Slerp(this.camera.rotation, Quaternion.Euler(newCameraRotation), this.cameraTrackSmooth * 1000);
+            this.camera.rotation = smoothedRotation;
+        }
+        smoothedPosition.y = this.cameraOffset.y;
+        this.camera.position = smoothedPosition;
     }
 
     private void UpdateCDs() {
@@ -67,11 +95,25 @@ public class PlayerMotion : MonoBehaviour
     }
 
     private bool IsCellValid(Vector2 checkPosition) {
-        // Setting local 3D position from 2D movement input
-        this.currentTilePosition = this.transform.position;
-        this.currentTilePosition.x += checkPosition.x;
-        this.currentTilePosition.y += 2.0f;
-        this.currentTilePosition.z += checkPosition.y;
+
+        if (this.cameraTrackPlayerRotation) {
+            // Get the current rotation of the character
+            Quaternion currentRotation = this.transform.rotation;
+
+            // Getting the next tile position
+            this.currentTilePosition = new Vector3(checkPosition.x, 0.0f, checkPosition.y);
+            Vector3 rotatedDirection = currentRotation * this.currentTilePosition;
+
+            // Calculate the new directed position
+            this.currentTilePosition = this.transform.position + rotatedDirection;
+            this.currentTilePosition.y = 2.0f;
+        } else { 
+            // Setting local 3D position from 2D movement input
+            this.currentTilePosition = this.transform.position;
+            this.currentTilePosition.x += checkPosition.x;
+            this.currentTilePosition.y += 2.0f;
+            this.currentTilePosition.z += checkPosition.y;
+        }
 
         // Tile object found
         TileObject tile = this.TileAtPos(this.currentTilePosition);
@@ -136,12 +178,11 @@ public class PlayerMotion : MonoBehaviour
             this.transform.position = interpolatedPosition;
             yield return null;
         }
-
         // Setting the exact final position
         this.transform.position = nextPosition;
 
         // Setting the exact final rotation
-        this.transform.rotation = newRotation;
+        this.transform.rotation = Quaternion.Euler(Vector3Int.RoundToInt(newRotation.eulerAngles));
 
         // Marking move availability
         this.moveCD = 0.05f;
