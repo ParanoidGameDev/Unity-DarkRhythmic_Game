@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using TMPro;
 using UnityEngine;
 
 public class PlayerMotion : MonoBehaviour
@@ -57,30 +58,31 @@ public class PlayerMotion : MonoBehaviour
             // Checking input for movement
             for (int i = 0; i < input.moveKeys.Count; i++) {
                 // Move to correct directions
-                if (input.moveKeys[i].Enabled) {
-                    this.IsCellValid(this.moveDirections[i]);
+                if (input.moveKeys[i].Enabled && this.IsCellValid(this.moveDirections[i])) {
+                    this.StartCoroutine(this.MoveToCell(this.currentTilePosition));
                     break;
                 }
             }
         }
     }
 
-    private void IsCellValid(Vector2 checkPosition) {
+    private bool IsCellValid(Vector2 checkPosition) {
         // Setting local 3D position from 2D movement input
-        Vector3 cellPosition = this.transform.position;
-        cellPosition.x += checkPosition.x;
-        cellPosition.y += 2.0f;
-        cellPosition.z += checkPosition.y;
+        this.currentTilePosition = this.transform.position;
+        this.currentTilePosition.x += checkPosition.x;
+        this.currentTilePosition.y += 2.0f;
+        this.currentTilePosition.z += checkPosition.y;
 
         // Tile object found
-        TileObject tile = this.TileAtPos(cellPosition);
+        TileObject tile = this.TileAtPos(this.currentTilePosition);
 
         // Move when cell is valid
-        if (tile.isPassable) {
-            cellPosition.y = tile.tileHeight;
-            this.StartCoroutine(this.MoveToCell(cellPosition));
+        if (tile && tile.isPassable) {
+            this.currentTilePosition.y = tile.tileHeight;
+            return true;
         } else {
             Debug.LogWarning("Tile not available");
+            return false;
         }
     }
 
@@ -105,7 +107,13 @@ public class PlayerMotion : MonoBehaviour
         float elapsedTime = 0.0f;
         Vector3 startPosition = this.transform.position;
 
-        // Calculate vertical difference and set maximum height accordingly
+        // Calculate new rotation
+        Vector3 lookDirection = nextPosition - this.transform.position;
+        lookDirection.y = 0.0f;
+        Quaternion newRotation = Quaternion.LookRotation(lookDirection);
+        Quaternion startRotation = this.transform.rotation;
+
+        // Calculate position
         float verticalDifference = nextPosition.y - startPosition.y;
         float maxHeight = Mathf.Abs(verticalDifference) * 1.25f + 0.25f;
 
@@ -118,6 +126,7 @@ public class PlayerMotion : MonoBehaviour
 
             // Animate movement
             Vector3 interpolatedPosition = Vector3.Lerp(startPosition, nextPosition, fracJourney);
+            this.transform.rotation = Quaternion.Slerp(startRotation, newRotation, elapsedTime / 0.1f);
 
             // Calculate height for hopping effect
             float height = maxHeight * (-4 * Mathf.Pow(fracJourney - 0.5f, 2) + 1);
@@ -128,9 +137,11 @@ public class PlayerMotion : MonoBehaviour
             yield return null;
         }
 
-        // Ensure final position is set
+        // Setting the exact final position
         this.transform.position = nextPosition;
-        this.currentTilePosition = nextPosition;
+
+        // Setting the exact final rotation
+        this.transform.rotation = newRotation;
 
         // Marking move availability
         this.moveCD = 0.05f;
