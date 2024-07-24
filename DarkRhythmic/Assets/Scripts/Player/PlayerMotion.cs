@@ -1,114 +1,191 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 
-public class PlayerMotion : MonoBehaviour {
+public class PlayerMotion : MonoBehaviour
+{
     // ! Attributes
-    public float moveSpeed = 5f;
+    public float moveSpeed = 0.25f;
+    public float moveCD = 1.0f;
+    public float moveReset = 0.05f;
+    //public float movePenalty = 0.05f;
 
     // ! Movement
-    private  Tilemap tilemap;
-    private Vector3Int currentCell;
-    private Vector3Int targetCell;
+    public Vector2[] moveDirections;
     private bool isMoving = false;
-    private bool alternateRow = false;
 
     // ! Inputs
     [SerializeField] private _InputManager input;
 
-    private void Awake() {
-        InitializePlayer();
-    }
+    // ! Camera
+    public Transform camera;
+    public Vector3Int cameraDefaultRotation;
+    public Vector3 cameraOffset;
+    public Vector3 currentTilePosition;
+    public float cameraTrackSmooth = 0.125f;
+    public bool cameraTrackPlayerRotation;
 
-    private void InitializePlayer() {
-        InitializeWorld();
-        InitializePosition();
-    }
-
-    private void InitializeWorld()
-    {
-        tilemap = GameObject.Find("tilemap_Obj").GetComponent<Tilemap>();
+    private void Start() {
+        this.camera = Camera.main.transform;
     }
 
     private void Update() {
-        CheckMovement();
+        // Common updates
+        this.CheckMovement();
+    }
+
+    private void LateUpdate() {
+        // Camera
+        this.UpdateCameraTracking();
+
+        // CDs
+        this.UpdateCDs();
+    }
+
+    private void UpdateCameraTracking() {
+        // Setting transition values
+        Quaternion smoothedRotation;
+        Vector3Int newCameraRotation = this.cameraDefaultRotation;
+        Vector3 newPosition = this.transform.position;
+        Vector3 smoothedPosition = this.transform.position;
+        float elapsedTime = 0.0f;
+
+        if (this.cameraTrackPlayerRotation) {
+            // Offsetting position based on Player position
+            Vector3 rotatedOffset = Quaternion.Euler(0, this.transform.rotation.eulerAngles.y, 0) * this.cameraOffset;
+            newPosition += rotatedOffset;
+
+            // Setting camera rotation based on Player rotation
+            newCameraRotation.y = (int)this.transform.rotation.eulerAngles.y;
+        } else {
+            // Set default position
+            newPosition += this.cameraOffset;
+        }
+
+        // Rotate animation
+        while (elapsedTime < this.cameraTrackSmooth) {
+            elapsedTime += Time.deltaTime;
+
+            // Smooth interpolate to new values
+            smoothedPosition = Vector3.Slerp(this.camera.position, newPosition, this.cameraTrackSmooth);
+            smoothedRotation = Quaternion.Slerp(this.camera.rotation, Quaternion.Euler(newCameraRotation), this.cameraTrackSmooth * 1000);
+            this.camera.rotation = smoothedRotation;
+        }
+        smoothedPosition.y = this.cameraOffset.y;
+        this.camera.position = smoothedPosition;
+    }
+
+    private void UpdateCDs() {
+        // Move
+        if (this.moveCD > 0) this.moveCD -= Time.deltaTime;
+        else this.moveCD = 0;
     }
 
     private void CheckMovement() {
-        if (!isMoving) {
-
-            Vector3Int direction = Vector3Int.zero;
-
-            if (input.W_press) direction = Vector3Int.right; // Arriba
-            else {
-                if (input.S_press) direction = Vector3Int.left; // Abajo
-                else if (alternateRow) {
-                    direction = GetSameRowDirection();
-                } else {
-                    direction = GetDiffRowDirection();
+        // Check if can move
+        if (!this.isMoving && this.moveCD == 0) {
+            // Checking input for movement
+            for (int i = 0; i < input.moveKeys.Count; i++) {
+                // Move to correct directions
+                if (input.moveKeys[i].Enabled && this.IsCellValid(this.moveDirections[i])) {
+                    this.StartCoroutine(this.MoveToCell(this.currentTilePosition));
+                    break;
                 }
             }
-            if (direction != Vector3Int.zero) {
-                Move(direction);
-            }
         }
     }
 
-    private void InitializePosition() {
-        currentCell = tilemap.WorldToCell(transform.position);
-        transform.position = tilemap.CellToWorld(currentCell) + tilemap.tileAnchor;
-    }
-    
-    private Vector3Int GetSameRowDirection() {
-        Vector3Int lateralDir = Vector3Int.zero;
+    private bool IsCellValid(Vector2 checkPosition) {
 
-        if (input.Q_press) lateralDir = new Vector3Int(1, -1, 0); // Arriba izquierda
-        else if (input.E_press) lateralDir = new Vector3Int(1, 1, 0); // Derecha Arriba
-        else if (input.A_press) lateralDir = new Vector3Int(0, -1, 0); // Izquierda
-        else if (input.D_press) lateralDir = new Vector3Int(0, 1, 0); // Derecha
+        if (this.cameraTrackPlayerRotation) {
+            // Get the current rotation of the character
+            Quaternion currentRotation = this.transform.rotation;
 
-        return lateralDir;
-    }
+            // Getting the next tile position
+            this.currentTilePosition = new Vector3(checkPosition.x, 0.0f, checkPosition.y);
+            Vector3 rotatedDirection = currentRotation * this.currentTilePosition;
 
-    private Vector3Int GetDiffRowDirection() {
-        Vector3Int lateralDir = Vector3Int.zero;
+            // Calculate the new directed position
+            this.currentTilePosition = this.transform.position + rotatedDirection;
+            this.currentTilePosition.y = 2.0f;
+        } else { 
+            // Setting local 3D position from 2D movement input
+            this.currentTilePosition = this.transform.position;
+            this.currentTilePosition.x += checkPosition.x;
+            this.currentTilePosition.y += 2.0f;
+            this.currentTilePosition.z += checkPosition.y;
+        }
 
-        if (input.Q_press) lateralDir = new Vector3Int(0, -1, 0); // Arriba izquierda
-        else if(input.E_press) lateralDir = new Vector3Int(0, 1, 0); // Derecha Arriba
-        else if(input.A_press) lateralDir = new Vector3Int(-1, -1, 0); // Izquierda
-        else if(input.D_press) lateralDir = new Vector3Int(-1, 1, 0); // Derecha
+        // Tile object found
+        TileObject tile = this.TileAtPos(this.currentTilePosition);
 
-        return lateralDir;
-    }
-
-    private void Move(Vector3Int direction) {
-        targetCell = currentCell + direction;
-
-        if (tilemap.GetTile(targetCell) != null && IsCellPassable(targetCell)) {
-            if (direction != Vector3Int.left && direction != Vector3Int.right) {
-                alternateRow = !alternateRow;
-            }
-            StartCoroutine(MoveToCell(targetCell));
+        // Move when cell is valid
+        if (tile && tile.isPassable) {
+            this.currentTilePosition.y = tile.tileHeight;
+            return true;
+        } else {
+            Debug.LogWarning("Tile not available");
+            return false;
         }
     }
 
-    private IEnumerator MoveToCell(Vector3Int cell) {
-        isMoving = true;
-        Vector3 targetPos = tilemap.CellToWorld(cell) + tilemap.tileAnchor;
+    private TileObject TileAtPos(Vector3 cellPosition) {
+        // Raycast for any tile object with hitbox
+        Ray ray = new(cellPosition, Vector3.down);
+        if (Physics.Raycast(ray, out RaycastHit hit, 4.0f)) {
+            if(hit.collider.TryGetComponent<TileObject>(out TileObject tileFound)) {
+                return tileFound;
+            }
+        }
+        // No object found
+        Debug.LogWarning("No GameObject found or TileObject component is missing.");
+        return null;
+    }
+
+    private IEnumerator MoveToCell(Vector3 nextPosition) {
+        // Lock movement overwriting
+        this.isMoving = true;
+
+        // Setting transition values
         float elapsedTime = 0.0f;
+        Vector3 startPosition = this.transform.position;
 
-        while (elapsedTime < moveSpeed) {
-            transform.position = Vector3.Lerp(transform.position, targetPos, elapsedTime);
+        // Calculate new rotation
+        Vector3 lookDirection = nextPosition - this.transform.position;
+        lookDirection.y = 0.0f;
+        Quaternion newRotation = Quaternion.LookRotation(lookDirection);
+        Quaternion startRotation = this.transform.rotation;
+
+        // Calculate position
+        float verticalDifference = nextPosition.y - startPosition.y;
+        float maxHeight = Mathf.Abs(verticalDifference) * 1.25f + 0.25f;
+
+        // Move animation
+        while (elapsedTime < this.moveSpeed) {
             elapsedTime += Time.deltaTime;
+
+            // Calculate fraction of journey completed
+            float fracJourney = elapsedTime / this.moveSpeed;
+
+            // Animate movement
+            Vector3 interpolatedPosition = Vector3.Lerp(startPosition, nextPosition, fracJourney);
+            this.transform.rotation = Quaternion.Slerp(startRotation, newRotation, elapsedTime / 0.1f);
+
+            // Calculate height for hopping effect
+            float height = maxHeight * (-4 * Mathf.Pow(fracJourney - 0.5f, 2) + 1);
+            interpolatedPosition.y = startPosition.y + height + verticalDifference * fracJourney;
+
+            // Apply interpolated position
+            this.transform.position = interpolatedPosition;
             yield return null;
         }
+        // Setting the exact final position
+        this.transform.position = nextPosition;
 
-        transform.position = targetPos;
-        currentCell = cell;
-        isMoving = false;
-    }
+        // Setting the exact final rotation
+        this.transform.rotation = Quaternion.Euler(Vector3Int.RoundToInt(newRotation.eulerAngles));
 
-    private bool IsCellPassable(Vector3Int cell) {
-        return true;
+        // Marking move availability
+        this.moveCD = 0.05f;
+        this.isMoving = false;
     }
 }
