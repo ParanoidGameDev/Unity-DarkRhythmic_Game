@@ -11,10 +11,18 @@ public class PlayerDeck : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     public float radius;
     public float angleOffset;
 
+    // ! Particle System
+    private ParticleSystem currentParticleSystem;
+
     private void Update() {
-        if(this.cardSelected && !this.cardArea && Input.GetMouseButtonUp(0)) {
-            Destroy(this.cardSelected.gameObject);
-        }
+        if(this.cardSelected && !this.cardArea) {
+            DetectTile();
+
+            if (Input.GetMouseButtonUp(0)) {
+                // Detect the tile under the cursor and activate its particle system
+                Destroy(this.cardSelected.gameObject);
+            }
+        } else if (!this.cardSelected && this.currentParticleSystem) this.currentParticleSystem.Stop();
     }
 
     private void LateUpdate() {
@@ -67,5 +75,22 @@ public class PlayerDeck : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         // Leaving hovering
         this.cardArea = false;
         if(this.cardSelected) this.cardSelected.GetComponent<Image>().enabled = false;
+    }
+    private void DetectTile() {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit)) {
+            // Check if the hit object has a Tile component
+            TileObject tile = hit.collider.GetComponent<TileObject>();
+            if (tile != null) {
+                // Activate the particle system on the tile
+                if(currentParticleSystem != tile.GetComponentInChildren<ParticleSystem>())
+                {
+                    if(currentParticleSystem) currentParticleSystem.Stop();
+
+                    currentParticleSystem = tile.GetComponentInChildren<ParticleSystem>();
+                    currentParticleSystem.Play();
+                }
+            }
+        }
     }
 }
