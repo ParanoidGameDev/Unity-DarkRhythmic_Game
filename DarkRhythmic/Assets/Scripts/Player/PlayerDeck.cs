@@ -1,12 +1,21 @@
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class PlayerDeck : MonoBehaviour {
+public class PlayerDeck : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
     // ! Actions
     public Card cardSelected;
+    public bool cardArea;
 
     // ! Display
     public float radius;
     public float angleOffset;
+
+    private void Update() {
+        if(this.cardSelected && !this.cardArea && Input.GetMouseButtonUp(0)) {
+            Destroy(this.cardSelected.gameObject);
+        }
+    }
 
     private void LateUpdate() {
         if (!this.cardSelected) this.DisplayCards();
@@ -29,21 +38,34 @@ public class PlayerDeck : MonoBehaviour {
 
             // Checking if card is valid
             if (child && child.TryGetComponent(out Card card)) {
-                Vector2 multiplier = new(0.0f, -1.005f);
+                Vector2 multiplier = new(0.0f, -1.0025f);
                 if (card.selected) {
                     this.cardSelected = card;
                     continue;
                 } else if (card.hover) {
-                    multiplier.y = -1.0025f;
+                    multiplier.y = -1.0f;
                 }
                 // Displaying each card based on total amount
-                float angle = startAngle + ((i + .5f )* angleStep);
+                float angle = startAngle + ((i + 0.5f) * angleStep);
                 Vector2 position = this.radius * multiplier + new Vector2(Mathf.Sin(Mathf.Deg2Rad * angle) * this.radius, Mathf.Cos(Mathf.Deg2Rad * angle) * this.radius);
-                child.localPosition = position + Vector2.up * 0.1f;
+
+                child.localPosition = Vector3.Lerp(child.localPosition, position + (Vector2.up * 0.1f), 0.1f);
 
                 // Rotating cards
-                child.localRotation = Quaternion.Euler(0.0f, 0.1f, -angle);
+                child.localRotation = Quaternion.Euler(0.0f, 0.0f, Mathf.Lerp(child.localRotation.z, -angle, 1.0f));
             }
         }
+    }
+
+    public void OnPointerEnter(PointerEventData eventData) {
+        // Detecting hovering
+        this.cardArea = true;
+        if (this.cardSelected) this.cardSelected.GetComponent<Image>().enabled = true;
+    }
+
+    public void OnPointerExit(PointerEventData eventData) {
+        // Leaving hovering
+        this.cardArea = false;
+        if(this.cardSelected) this.cardSelected.GetComponent<Image>().enabled = false;
     }
 }

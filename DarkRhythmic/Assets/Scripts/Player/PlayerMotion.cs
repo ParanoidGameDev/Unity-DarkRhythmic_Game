@@ -51,7 +51,7 @@ public class PlayerMotion : MonoBehaviour
 
         if (this.cameraTrackPlayerRotation) {
             // Offsetting position based on Player position
-            Vector3 rotatedOffset = Quaternion.Euler(0, this.transform.rotation.eulerAngles.y, 0) * this.cameraOffset;
+            Vector3 rotatedOffset = Quaternion.Euler(0.0f, this.transform.rotation.y, 0.0f) * this.cameraOffset;
             newPosition += rotatedOffset;
 
             // Setting camera rotation based on Player rotation

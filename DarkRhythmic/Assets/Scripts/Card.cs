@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IDragHandler, IPointerUpHandler {
@@ -30,12 +31,16 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
 
     public void OnPointerDown(PointerEventData eventData) {
         // Click over card
-        if (!deck.cardSelected) this.selected = true;
+        if (!deck.cardSelected) {
+            this.selected = true;
+            this.GetComponent<Image>().raycastTarget = false;
+        }
     }
 
     public void OnPointerUp(PointerEventData eventData) {
         // Stop clicking
         this.selected = false;
+        this.GetComponent<Image>().raycastTarget = true;
     }
 
     public void OnBeginDrag(PointerEventData eventData) {
@@ -43,10 +48,12 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
 
     public void OnDrag(PointerEventData eventData) {
         if (this.selected) {
-            // Convert mouse position to the Canvas's local position
-            Vector2 localPoint;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(this.transform.parent as RectTransform, eventData.position, null, out localPoint);
-            this.transform.localPosition = localPoint - this.displayOffset;
+            // Moving card with cursor input
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(this.transform.parent as RectTransform, eventData.position, null, out Vector2 localPoint);
+            this.transform.localPosition = Vector2.Lerp(this.transform.localPosition, localPoint - this.displayOffset, 0.5f);
+
+            // Resetting card rotation
+            this.transform.localRotation = Quaternion.Euler(0.0f, 0.0f, Mathf.Lerp(this.transform.localRotation.z, 0.0f, 1.0f));
         }
     }
 }
