@@ -1,8 +1,7 @@
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler {
+public class PlayerCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler {
     // ! Attributes
     public Vector2 displayOffset;
     public bool hover;
@@ -12,9 +11,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
     public PlayerDeck deck;
 
     // ! Effects
-    [SerializeField] public enum Type {
-        
-    };
+    public int type;
 
     private void Start() {
         // Initialize its deck
@@ -38,6 +35,9 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
     public void OnPointerDown(PointerEventData eventData) {
         // Click over card
         this.selected = true;
+
+        // Use clicked card
+        this.ChargeAttack();
         /*
         if (!deck.cardSelected) {
             this.GetComponent<Image>().raycastTarget = false;
@@ -63,4 +63,10 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
         }
     }
     */
+
+    public void ChargeAttack() {
+        if(deck.ApplyEffect(type)) {
+            Destroy(this.gameObject);
+        }
+    }
 }
