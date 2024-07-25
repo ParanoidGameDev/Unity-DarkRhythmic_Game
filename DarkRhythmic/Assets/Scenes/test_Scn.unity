@@ -584,7 +584,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: acd8c9d431198264b90d1f01b9399b3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardSelected: {fileID: 0}
+  gameManager: {fileID: 1251581958}
   cardArea: 0
   radius: 800
   angleOffset: 0
@@ -4401,6 +4401,7 @@ GameObject:
   - component: {fileID: 1251581954}
   - component: {fileID: 1251581953}
   - component: {fileID: 1251581952}
+  - component: {fileID: 1251581958}
   - component: {fileID: 1251581956}
   - component: {fileID: 1251581957}
   m_Layer: 5
@@ -4533,6 +4534,38 @@ MonoBehaviour:
     Enabled: 0
   - Key: 100
     Enabled: 0
+--- !u!114 &1251581958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1251581951}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56c9e11897dd7af4f8a8498d7e1b9e19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 0}
+  activeEffects: []
+  playerPrefab: {fileID: 1865490981873087460, guid: 6b42f03f867f2f9459e50735fb463fa5,
+    type: 3}
+  magicEffects:
+  - effectName: Light
+    damageThreshold: 0.25
+    damageType: 0
+  - effectName: Bless
+    damageThreshold: 0.02
+    damageType: 1
+  - effectName: Sheen
+    damageThreshold: 0.02
+    damageType: 2
+  - effectName: Aura
+    damageThreshold: 0.05
+    damageType: 3
+  - effectName: Unity
+    damageThreshold: 0.5
+    damageType: 4
 --- !u!4 &1267175815 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5294708106368247740, guid: 18945cccb89552640b556a5863af603c,
@@ -7068,7 +7101,6 @@ Transform:
   m_Children:
   - {fileID: 509507985}
   - {fileID: 532836984}
-  - {fileID: 6892131616774203545}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2141454052
@@ -7325,85 +7357,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 94ee4a91510904a4f94d132190232757, type: 3}
---- !u!1001 &6892131616774203544
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 2133552149}
-    m_Modifications:
-    - target: {fileID: 1344428420813891934, guid: 6b42f03f867f2f9459e50735fb463fa5,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1344428420813891934, guid: 6b42f03f867f2f9459e50735fb463fa5,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.19999999
-      objectReference: {fileID: 0}
-    - target: {fileID: 1344428420813891934, guid: 6b42f03f867f2f9459e50735fb463fa5,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1344428420813891934, guid: 6b42f03f867f2f9459e50735fb463fa5,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1344428420813891934, guid: 6b42f03f867f2f9459e50735fb463fa5,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1344428420813891934, guid: 6b42f03f867f2f9459e50735fb463fa5,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1344428420813891934, guid: 6b42f03f867f2f9459e50735fb463fa5,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1344428420813891934, guid: 6b42f03f867f2f9459e50735fb463fa5,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1344428420813891934, guid: 6b42f03f867f2f9459e50735fb463fa5,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1344428420813891934, guid: 6b42f03f867f2f9459e50735fb463fa5,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1865490981873087460, guid: 6b42f03f867f2f9459e50735fb463fa5,
-        type: 3}
-      propertyPath: m_Name
-      value: basicCharacter
-      objectReference: {fileID: 0}
-    - target: {fileID: 7396187448152496857, guid: 6b42f03f867f2f9459e50735fb463fa5,
-        type: 3}
-      propertyPath: input
-      value: 
-      objectReference: {fileID: 1251581957}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 6b42f03f867f2f9459e50735fb463fa5, type: 3}
---- !u!4 &6892131616774203545 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 1344428420813891934, guid: 6b42f03f867f2f9459e50735fb463fa5,
-    type: 3}
-  m_PrefabInstance: {fileID: 6892131616774203544}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

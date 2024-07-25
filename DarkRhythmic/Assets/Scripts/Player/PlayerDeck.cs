@@ -1,11 +1,10 @@
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using System;
 
 public class PlayerDeck : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
     // ! Actions
-    //public Card cardSelected;
+    //public PlayerCard cardSelected;
+    public _GameManager gameManager;
     public bool cardArea;
 
     // ! Display
@@ -18,20 +17,23 @@ public class PlayerDeck : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     private ParticleSystem currentParticleSystem;
 
     private void Update() {
-        this.HighlightTile();
+        //this.HighlightTile();
     }
 
-    private void HighlightTile() {
+    private void LateUpdate() {
+        this.DeckDisplay();
+
+        this.DisplayCards();
+        /*
+        if (!this.cardSelected)
+        else if(!Input.GetMouseButton(0)) this.cardSelected = null;
+        */
+    }
+
+    private void DeckDisplay() {
         Vector2 currentPosition = this.transform.position;
         Vector2 newPosition = this.transform.position;
         float newTimeScale;
-        /*
-        if(this.cardSelected) {
-        } else {
-            currentPosition.y = 0.0f;
-            if (this.currentParticleSystem) this.currentParticleSystem.Stop();
-        }
-        */
 
         // Checking if calculating
         if (Input.GetKey(KeyCode.Tab)) {
@@ -60,13 +62,14 @@ public class PlayerDeck : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         Vector2 smoothedPosition = Vector2.Lerp(currentPosition, newPosition, this.hideSpeed);
         this.transform.position = smoothedPosition;
     }
-
-    private void LateUpdate() {
-        this.DisplayCards();
-        /*
-        if (!this.cardSelected)
-        else if(!Input.GetMouseButton(0)) this.cardSelected = null;
-        */
+    
+    public bool ApplyEffect(int card) {
+        if(gameManager.activeEffects.Count < 3) {
+            gameManager.activeEffects.Add(gameManager.magicEffects[card]);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void DisplayCards() {
@@ -84,7 +87,7 @@ public class PlayerDeck : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
             RectTransform child = this.transform.GetChild(i) as RectTransform;
 
             // Checking if card is valid
-            if (child && child.TryGetComponent(out Card card)) {
+            if (child && child.TryGetComponent(out PlayerCard card)) {
                 Vector2 multiplier = new(0.0f, -1.0025f);
                 if (card.selected) {
                     //this.cardSelected = card;
@@ -115,6 +118,7 @@ public class PlayerDeck : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         this.cardArea = false;
         //if(this.cardSelected) this.cardSelected.GetComponent<Image>().enabled = false;
     }
+    
     private void DetectTile() {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit)) {
@@ -132,4 +136,15 @@ public class PlayerDeck : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
             }
         }
     }
+    
+    private void HighlightTile() {
+        /*
+        if(this.cardSelected) {
+        } else {
+            currentPosition.y = 0.0f;
+            if (this.currentParticleSystem) this.currentParticleSystem.Stop();
+        }
+        */
+    }
+
 }
