@@ -5,7 +5,7 @@ using System;
 
 public class PlayerDeck : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
     // ! Actions
-    public Card cardSelected;
+    //public Card cardSelected;
     public bool cardArea;
 
     // ! Display
@@ -24,29 +24,42 @@ public class PlayerDeck : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     private void HighlightTile() {
         Vector2 currentPosition = this.transform.position;
         Vector2 newPosition = this.transform.position;
+        float newTimeScale;
+        /*
         if(this.cardSelected) {
-            if(this.cardArea || Input.GetMouseButtonUp(0)) {
-                currentPosition.y = 0.0f;
-            } else {
-                currentPosition.y = -144.0f;
-                this.DetectTile();
-            }
-            
-            if (Input.GetMouseButtonUp(0) && !this.cardArea) {
-                // Detect the tile under the cursor and activate its particle system
-                Destroy(this.cardSelected.gameObject);
-            }
         } else {
             currentPosition.y = 0.0f;
             if (this.currentParticleSystem) this.currentParticleSystem.Stop();
         }
+        */
+
+            // Checking for card area
+            if (this.cardArea) {
+                currentPosition.y = 0.0f;
+            } else {
+                currentPosition.y = -144.0f;
+                //this.DetectTile();
+            }
+        /*
+        if (Input.GetMouseButtonUp(0) && !this.cardArea) {
+            // Detect the tile under the cursor and activate its particle system
+            Destroy(this.cardSelected.gameObject);
+        }
+        */
+        // Change time step
+        Time.timeScale = Mathf.Lerp(Time.timeScale, newTimeScale, Time.deltaTime);
+
+        // Animate smooth movement
         Vector2 smoothedPosition = Vector2.Lerp(currentPosition, newPosition, this.hideSpeed);
         this.transform.position = smoothedPosition;
     }
 
     private void LateUpdate() {
-        if (!this.cardSelected) this.DisplayCards();
+        this.DisplayCards();
+        /*
+        if (!this.cardSelected)
         else if(!Input.GetMouseButton(0)) this.cardSelected = null;
+        */
     }
 
     public void DisplayCards() {
@@ -67,7 +80,7 @@ public class PlayerDeck : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
             if (child && child.TryGetComponent(out Card card)) {
                 Vector2 multiplier = new(0.0f, -1.0025f);
                 if (card.selected) {
-                    this.cardSelected = card;
+                    //this.cardSelected = card;
                     continue;
                 } else if (card.hover) {
                     multiplier.y = -1.0f;
@@ -87,13 +100,13 @@ public class PlayerDeck : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     public void OnPointerEnter(PointerEventData eventData) {
         // Detecting hovering
         this.cardArea = true;
-        if (this.cardSelected) this.cardSelected.GetComponent<Image>().enabled = true;
+        //if (this.cardSelected) this.cardSelected.GetComponent<Image>().enabled = true;
     }
 
     public void OnPointerExit(PointerEventData eventData) {
         // Leaving hovering
         this.cardArea = false;
-        if(this.cardSelected) this.cardSelected.GetComponent<Image>().enabled = false;
+        //if(this.cardSelected) this.cardSelected.GetComponent<Image>().enabled = false;
     }
     private void DetectTile() {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);

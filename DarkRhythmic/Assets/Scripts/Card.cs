@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IDragHandler, IPointerUpHandler {
+public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler {
     // ! Attributes
     public Vector2 displayOffset;
     public bool hover;
@@ -10,6 +10,11 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
 
     // ! Managing
     public PlayerDeck deck;
+
+    // ! Effects
+    [SerializeField] public enum Type {
+        
+    };
 
     private void Start() {
         // Initialize its deck
@@ -21,7 +26,8 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
 
     public void OnPointerEnter(PointerEventData eventData) {
         // Detecting hovering
-        if(!deck.cardSelected) this.hover = true;
+        //if(!deck.cardSelected) 
+        this.hover = true;
     }
 
     public void OnPointerExit(PointerEventData eventData) {
@@ -31,21 +37,21 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
 
     public void OnPointerDown(PointerEventData eventData) {
         // Click over card
+        this.selected = true;
+        /*
         if (!deck.cardSelected) {
-            this.selected = true;
             this.GetComponent<Image>().raycastTarget = false;
         }
+        */
     }
 
     public void OnPointerUp(PointerEventData eventData) {
         // Stop clicking
         this.selected = false;
-        this.GetComponent<Image>().raycastTarget = true;
+        //this.GetComponent<Image>().raycastTarget = true;
     }
 
-    public void OnBeginDrag(PointerEventData eventData) {
-    }
-
+    /*
     public void OnDrag(PointerEventData eventData) {
         if (this.selected) {
             // Moving card with cursor input
@@ -56,4 +62,5 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
             this.transform.localRotation = Quaternion.Euler(0.0f, 0.0f, Mathf.Lerp(this.transform.localRotation.z, 0.0f, 1.0f));
         }
     }
+    */
 }
