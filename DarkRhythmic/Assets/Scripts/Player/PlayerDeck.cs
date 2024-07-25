@@ -33,6 +33,11 @@ public class PlayerDeck : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         }
         */
 
+        // Checking if calculating
+        if (Input.GetKey(KeyCode.Tab)) {
+            currentPosition.y = 0.0f;
+            newTimeScale = 0.25f;
+        } else {
             // Checking for card area
             if (this.cardArea) {
                 currentPosition.y = 0.0f;
@@ -40,6 +45,8 @@ public class PlayerDeck : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
                 currentPosition.y = -144.0f;
                 //this.DetectTile();
             }
+            newTimeScale = 1.0f;
+        }
         /*
         if (Input.GetMouseButtonUp(0) && !this.cardArea) {
             // Detect the tile under the cursor and activate its particle system
