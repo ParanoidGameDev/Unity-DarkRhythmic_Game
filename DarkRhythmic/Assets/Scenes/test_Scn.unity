@@ -4547,9 +4547,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 0}
-  activeEffects: 
+  activeEffects: []
   playerPrefab: {fileID: 1865490981873087460, guid: 6b42f03f867f2f9459e50735fb463fa5,
     type: 3}
+  magicEffects:
+  - effectName: Light
+    damageThreshold: 0.25
+    damageType: 0
+  - effectName: Bless
+    damageThreshold: 0.02
+    damageType: 1
+  - effectName: Sheen
+    damageThreshold: 0.02
+    damageType: 2
+  - effectName: Aura
+    damageThreshold: 0.05
+    damageType: 3
+  - effectName: Unity
+    damageThreshold: 0.5
+    damageType: 4
 --- !u!4 &1267175815 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5294708106368247740, guid: 18945cccb89552640b556a5863af603c,

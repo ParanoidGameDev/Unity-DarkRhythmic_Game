@@ -11,7 +11,7 @@ public class PlayerCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     public PlayerDeck deck;
 
     // ! Effects
-    public int type;
+    public int type; // ref to effect type
 
     private void Start() {
         // Initialize its deck
@@ -19,6 +19,12 @@ public class PlayerCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     }
 
     private void Update() {
+    }
+    
+    public void ChargeAttack() {
+        if(deck.ApplyEffect(type)) {
+            Destroy(this.gameObject);
+        }
     }
 
     public void OnPointerEnter(PointerEventData eventData) {
@@ -63,10 +69,4 @@ public class PlayerCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         }
     }
     */
-
-    public void ChargeAttack() {
-        if(deck.ApplyEffect(type)) {
-            Destroy(this.gameObject);
-        }
-    }
 }

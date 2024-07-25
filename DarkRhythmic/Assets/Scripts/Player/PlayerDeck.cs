@@ -65,7 +65,7 @@ public class PlayerDeck : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     
     public bool ApplyEffect(int card) {
         if(gameManager.activeEffects.Count < 3) {
-            gameManager.activeEffects.Add(card);
+            gameManager.activeEffects.Add(gameManager.magicEffects[card]);
             return true;
         } else {
             return false;

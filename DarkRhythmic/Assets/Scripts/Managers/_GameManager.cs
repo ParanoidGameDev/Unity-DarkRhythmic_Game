@@ -4,12 +4,13 @@ using UnityEngine;
 public class _GameManager : MonoBehaviour {
     // ! Player effects
     public GameObject player;
-    public List<int> activeEffects;
+    public List<MagicEffect> activeEffects;
 
     // ! Player
     public GameObject playerPrefab;
 
     // ! Modifiers
+    public List<MagicEffect> magicEffects;
 
     public void Start() {
         this.LoadPlayer();
@@ -28,8 +29,9 @@ public class _GameManager : MonoBehaviour {
     private void CheckForEffects() {
         // Check for active effects
         if(this.activeEffects.Count > 0) {
-            // TODO Particle visuals
+            // Iterate each active effect
             foreach (var effect in this.activeEffects) {
+                // TODO Particle visuals
             }
         }
     }
