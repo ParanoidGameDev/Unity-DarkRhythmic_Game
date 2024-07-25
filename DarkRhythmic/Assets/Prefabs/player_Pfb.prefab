@@ -259,7 +259,7 @@ GameObject:
   - component: {fileID: 7396187448152496857}
   - component: {fileID: 8769360890424731298}
   m_Layer: 0
-  m_Name: player_Obj
+  m_Name: player_Pfb
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -312,7 +312,7 @@ MonoBehaviour:
   input: {fileID: 0}
   camera: {fileID: 0}
   cameraDefaultRotation: {x: 35, y: 0, z: 0}
-  cameraOffset: {x: 0, y: 4.75, z: -3.75}
+  cameraOffset: {x: 0, y: 4, z: -4.5}
   currentTilePosition: {x: 0, y: 0, z: 0}
   cameraTrackSmooth: 5
   cameraTrackPlayerRotation: 0
